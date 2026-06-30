@@ -27,11 +27,16 @@ function renderMetaTag(name, content, property = false) {
   return `<meta ${key}="${escapeHtml(name)}" content="${escapeHtml(content)}">`;
 }
 
+function serializeJsonForScript(value) {
+  return JSON.stringify(value).replaceAll("<", "\\u003c");
+}
+
 function renderHead() {
   const siteUrlIsVerified = isVerifiedUrl(siteConfig.siteUrl);
   const ogImage = siteUrlIsVerified
     ? `${siteConfig.siteUrl}/logo_orange_background_white_text.jpg`
     : "";
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SportsActivityLocation",
@@ -50,7 +55,7 @@ function renderHead() {
     jsonLd.sameAs.push(siteConfig.instagramUrl);
   }
 
-  const jsonLdString = JSON.stringify(jsonLd).replaceAll("<", "\\u003c");
+  const jsonLdString = serializeJsonForScript(jsonLd);
 
   return `<!doctype html>
 <html lang="sr-Latn-RS">
@@ -94,7 +99,8 @@ function renderBody() {
         ${renderFaq()}
       </main>
       ${renderFooter()}
-    </div>`;
+    </div>
+    ${renderMiniBoardScript()}`;
 }
 
 function renderHeader() {
@@ -130,7 +136,8 @@ function renderHeader() {
 }
 
 function renderHero() {
-  const monday = schedule[0];
+  const fallbackDay = schedule[0];
+
   return `        <section class="hero section-frame" aria-labelledby="hero-title">
           <div class="hero-grid">
             <div class="hero-copy">
@@ -170,22 +177,26 @@ function renderHero() {
                   .map((tag) => `<span>${escapeHtml(tag)}</span>`)
                   .join("")}
               </div>
-              <aside class="mini-board" aria-label="Izdvojeni termin">
-                <p class="mini-board__label">VEČERAŠNJI RITAM</p>
-                <h2>${escapeHtml(monday.day)}</h2>
-                <ul>
-                  ${monday.sessions
+              ${renderMiniBoard(fallbackDay)}
+              <div class="hero-watermark" aria-hidden="true">★</div>
+            </div>
+          </div>
+        </section>`;
+}
+
+function renderMiniBoard(activeDay) {
+  return `<aside class="mini-board" aria-label="Današnji raspored" data-mini-board>
+                <p class="mini-board__label">DANAŠNJI RITAM</p>
+                <h2 data-mini-board-day>${escapeHtml(activeDay.day)}</h2>
+                <ul data-mini-board-list>
+                  ${activeDay.sessions
                     .map(
                       (session) =>
                         `<li><strong>${escapeHtml(session.time)}</strong><span>${escapeHtml(session.title)}</span></li>`
                     )
                     .join("")}
                 </ul>
-              </aside>
-              <div class="hero-watermark" aria-hidden="true">★</div>
-            </div>
-          </div>
-        </section>`;
+              </aside>`;
 }
 
 function renderTrainingTypes() {
@@ -235,17 +246,18 @@ function renderScheduleTable() {
     </thead>
     <tbody>
       ${scheduleTimeSlots
-        .map((slot) => {
-          return `<tr>
+        .map(
+          (slot) => `<tr>
             <th scope="row">${escapeHtml(slot)}</th>
             ${schedule
               .map((day) => {
                 const session = day.sessions.find((item) => item.time === slot);
+
                 return `<td>${session ? `<span class="session-pill">${escapeHtml(session.title)}</span>` : '<span class="session-empty">—</span>'}</td>`;
               })
               .join("")}
-          </tr>`;
-        })
+          </tr>`
+        )
         .join("")}
     </tbody>
   </table>`;
@@ -440,6 +452,63 @@ function renderFooter() {
 
 function renderStampLine() {
   return `${siteConfig.motto} ★ ${siteConfig.motto} ★ ${siteConfig.name} ★ ${siteConfig.address}`;
+}
+
+function renderMiniBoardScript() {
+  const scheduleJson = serializeJsonForScript(schedule);
+
+  return `<script>
+      (() => {
+        const miniBoard = document.querySelector("[data-mini-board]");
+
+        if (!miniBoard) {
+          return;
+        }
+
+        const dayElement = miniBoard.querySelector("[data-mini-board-day]");
+        const listElement = miniBoard.querySelector("[data-mini-board-list]");
+
+        if (!dayElement || !listElement) {
+          return;
+        }
+
+        const weeklySchedule = ${scheduleJson};
+        const weekdayIndexMap = {
+          Mon: 0,
+          Tue: 1,
+          Wed: 2,
+          Thu: 3,
+          Fri: 4,
+          Sat: 5,
+          Sun: 6
+        };
+
+        const todayKey = new Intl.DateTimeFormat("en-US", {
+          weekday: "short",
+          timeZone: "Europe/Belgrade"
+        }).format(new Date());
+
+        const activeDay =
+          weeklySchedule[weekdayIndexMap[todayKey]] ?? weeklySchedule[0];
+
+        dayElement.textContent = activeDay.day;
+        miniBoard.setAttribute("aria-label", "Današnji raspored: " + activeDay.fullDay);
+
+        const items = activeDay.sessions.map((session) => {
+          const item = document.createElement("li");
+          const time = document.createElement("strong");
+          const title = document.createElement("span");
+
+          time.textContent = session.time;
+          title.textContent = session.title;
+          item.append(time, title);
+
+          return item;
+        });
+
+        listElement.replaceChildren(...items);
+      })();
+    </script>`;
 }
 
 export function renderPage() {
