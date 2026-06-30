@@ -32,6 +32,10 @@ function serializeJsonForScript(value) {
   return JSON.stringify(value).replaceAll("<", "\\u003c");
 }
 
+function formatGalleryCounter(index, total) {
+  return `${String(index + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}`;
+}
+
 function renderHead() {
   const siteUrlIsVerified = isVerifiedUrl(siteConfig.siteUrl);
   const ogImage = siteUrlIsVerified
@@ -102,7 +106,8 @@ function renderBody() {
       </main>
       ${renderFooter()}
     </div>
-    ${renderMiniBoardScript()}`;
+    ${renderMiniBoardScript()}
+    ${renderGalleryScript()}`;
 }
 
 function renderHeader() {
@@ -336,6 +341,9 @@ function renderWhyBeostar() {
 }
 
 function renderGallery() {
+  const initialImage = siteConfig.galleryImages[0];
+  const totalImages = siteConfig.galleryImages.length;
+
   return `        <section class="section-frame gallery-section" id="galerija" aria-labelledby="galerija-title">
           <div class="gallery-layout">
             <div class="gallery-copy">
@@ -344,20 +352,76 @@ function renderGallery() {
               <p>Pogledaj deo Beostar Gym prostora — oprema, sala i detalji koji nose isti crno-narandžasti ritam kao treninzi.</p>
               <div class="brand-tape" aria-hidden="true">${renderStampLine()}</div>
             </div>
-            <div class="gallery-board">
-              ${siteConfig.galleryImages
-                .map(
-                  (image, index) => `<figure class="gallery-card gallery-card--${index + 1}">
-                <p class="gallery-card__label">${escapeHtml(image.label)}</p>
-                <div class="gallery-card__media">
-                  <img src="${escapeHtml(image.src)}" alt="${escapeHtml(image.alt)}" loading="lazy" decoding="async">
+            <div class="gallery-carousel" data-gallery>
+              <div class="gallery-stage">
+                <div class="gallery-stage__frame">
+                  <button class="gallery-stage-button" type="button" data-gallery-open aria-label="Otvori sliku u galeriji">
+                    <img
+                      data-gallery-active-image
+                      src="${escapeHtml(initialImage.src)}"
+                      alt="${escapeHtml(initialImage.alt)}"
+                      loading="lazy"
+                      decoding="async"
+                    >
+                  </button>
+                  <button class="gallery-control gallery-control--prev" type="button" data-gallery-prev aria-label="Prethodna slika">‹</button>
+                  <button class="gallery-control gallery-control--next" type="button" data-gallery-next aria-label="Sledeća slika">›</button>
                 </div>
-                <figcaption>
-                  <strong>${escapeHtml(image.title)}</strong>
-                </figcaption>
-              </figure>`
-                )
-                .join("")}
+                <div class="gallery-stage-meta">
+                  <div class="gallery-stage-meta__copy">
+                    <p class="gallery-card__label" data-gallery-active-label>${escapeHtml(initialImage.label)}</p>
+                    <h3 data-gallery-active-title>${escapeHtml(initialImage.title)}</h3>
+                  </div>
+                  <p class="gallery-counter" data-gallery-counter>${escapeHtml(formatGalleryCounter(0, totalImages))}</p>
+                </div>
+              </div>
+              <div class="gallery-thumbs" aria-label="Izbor slike iz galerije">
+                ${siteConfig.galleryImages
+                  .map((image, index) => {
+                    const ordinal = String(index + 1).padStart(2, "0");
+                    const isActive = index === 0;
+
+                    return `<button
+                  class="gallery-thumb${isActive ? " is-active" : ""}"
+                  type="button"
+                  data-gallery-thumb
+                  data-gallery-index="${index}"
+                  data-src="${escapeHtml(image.src)}"
+                  data-alt="${escapeHtml(image.alt)}"
+                  data-label="${escapeHtml(image.label)}"
+                  data-title="${escapeHtml(image.title)}"
+                  aria-label="Prikaži sliku ${ordinal}: ${escapeHtml(image.title)}"
+                  ${isActive ? 'aria-current="true"' : ""}
+                >
+                  <img src="${escapeHtml(image.src)}" alt="${escapeHtml(image.alt)}" loading="lazy" decoding="async">
+                  <span class="gallery-thumb__index">${ordinal}</span>
+                </button>`;
+                  })
+                  .join("")}
+              </div>
+              <div class="gallery-modal" data-gallery-modal hidden role="dialog" aria-modal="true" aria-labelledby="gallery-modal-title">
+                <div class="gallery-modal__panel">
+                  <button type="button" class="gallery-modal__close" data-gallery-close aria-label="Zatvori galeriju">×</button>
+                  <button type="button" class="gallery-modal__control gallery-modal__control--prev" data-gallery-modal-prev aria-label="Prethodna slika">‹</button>
+                  <button type="button" class="gallery-modal__control gallery-modal__control--next" data-gallery-modal-next aria-label="Sledeća slika">›</button>
+                  <figure class="gallery-modal__figure">
+                    <img
+                      data-gallery-modal-image
+                      src="${escapeHtml(initialImage.src)}"
+                      alt="${escapeHtml(initialImage.alt)}"
+                      loading="lazy"
+                      decoding="async"
+                    >
+                    <figcaption>
+                      <div class="gallery-modal__caption">
+                        <p class="gallery-card__label" data-gallery-modal-label>${escapeHtml(initialImage.label)}</p>
+                        <p id="gallery-modal-title" data-gallery-modal-title>${escapeHtml(initialImage.title)}</p>
+                      </div>
+                      <span data-gallery-modal-counter>${escapeHtml(formatGalleryCounter(0, totalImages))}</span>
+                    </figcaption>
+                  </figure>
+                </div>
+              </div>
             </div>
           </div>
         </section>`;
@@ -539,6 +603,188 @@ function renderMiniBoardScript() {
         });
 
         listElement.replaceChildren(...items);
+      })();
+    </script>`;
+}
+
+function renderGalleryScript() {
+  return `<script>
+      (() => {
+        const galleries = document.querySelectorAll("[data-gallery]");
+
+        if (!galleries.length) {
+          return;
+        }
+
+        const formatCounter = (index, total) =>
+          String(index + 1).padStart(2, "0") + " / " + String(total).padStart(2, "0");
+
+        galleries.forEach((gallery) => {
+          const thumbs = Array.from(gallery.querySelectorAll("[data-gallery-thumb]"));
+
+          if (!thumbs.length) {
+            return;
+          }
+
+          const stageOpenButton = gallery.querySelector("[data-gallery-open]");
+          const activeImage = gallery.querySelector("[data-gallery-active-image]");
+          const activeLabel = gallery.querySelector("[data-gallery-active-label]");
+          const activeTitle = gallery.querySelector("[data-gallery-active-title]");
+          const counter = gallery.querySelector("[data-gallery-counter]");
+          const prevButton = gallery.querySelector("[data-gallery-prev]");
+          const nextButton = gallery.querySelector("[data-gallery-next]");
+
+          const modal = gallery.querySelector("[data-gallery-modal]");
+          const modalImage = gallery.querySelector("[data-gallery-modal-image]");
+          const modalLabel = gallery.querySelector("[data-gallery-modal-label]");
+          const modalTitle = gallery.querySelector("[data-gallery-modal-title]");
+          const modalCounter = gallery.querySelector("[data-gallery-modal-counter]");
+          const modalClose = gallery.querySelector("[data-gallery-close]");
+          const modalPrev = gallery.querySelector("[data-gallery-modal-prev]");
+          const modalNext = gallery.querySelector("[data-gallery-modal-next]");
+
+          if (
+            !stageOpenButton ||
+            !activeImage ||
+            !activeLabel ||
+            !activeTitle ||
+            !counter ||
+            !modal ||
+            !modalImage ||
+            !modalLabel ||
+            !modalTitle ||
+            !modalCounter
+          ) {
+            return;
+          }
+
+          const total = thumbs.length;
+          let activeIndex =
+            thumbs.findIndex((thumb) => thumb.getAttribute("aria-current") === "true");
+          let lastFocusTarget = stageOpenButton;
+
+          if (activeIndex < 0) {
+            activeIndex = 0;
+          }
+
+          const readItem = (index) => {
+            const normalized = (index + total) % total;
+            const thumb = thumbs[normalized];
+
+            return {
+              index: normalized,
+              src: thumb.dataset.src || "",
+              alt: thumb.dataset.alt || "",
+              label: thumb.dataset.label || "",
+              title: thumb.dataset.title || ""
+            };
+          };
+
+          const applyActiveState = (index) => {
+            const item = readItem(index);
+
+            activeIndex = item.index;
+            activeImage.src = item.src;
+            activeImage.alt = item.alt;
+            activeLabel.textContent = item.label;
+            activeTitle.textContent = item.title;
+            counter.textContent = formatCounter(activeIndex, total);
+
+            modalImage.src = item.src;
+            modalImage.alt = item.alt;
+            modalLabel.textContent = item.label;
+            modalTitle.textContent = item.title;
+            modalCounter.textContent = formatCounter(activeIndex, total);
+
+            thumbs.forEach((thumb, thumbIndex) => {
+              const isActive = thumbIndex === activeIndex;
+
+              thumb.classList.toggle("is-active", isActive);
+
+              if (isActive) {
+                thumb.setAttribute("aria-current", "true");
+              } else {
+                thumb.removeAttribute("aria-current");
+              }
+            });
+          };
+
+          const openModal = (trigger) => {
+            lastFocusTarget =
+              trigger instanceof HTMLElement ? trigger : stageOpenButton;
+            modal.hidden = false;
+            document.body.classList.add("is-gallery-modal-open");
+            modalClose?.focus();
+          };
+
+          const closeModal = () => {
+            if (modal.hidden) {
+              return;
+            }
+
+            modal.hidden = true;
+            document.body.classList.remove("is-gallery-modal-open");
+
+            if (lastFocusTarget instanceof HTMLElement) {
+              lastFocusTarget.focus();
+            }
+          };
+
+          thumbs.forEach((thumb, thumbIndex) => {
+            thumb.addEventListener("click", () => {
+              applyActiveState(thumbIndex);
+            });
+          });
+
+          prevButton?.addEventListener("click", () => {
+            applyActiveState(activeIndex - 1);
+          });
+
+          nextButton?.addEventListener("click", () => {
+            applyActiveState(activeIndex + 1);
+          });
+
+          stageOpenButton.addEventListener("click", () => {
+            openModal(stageOpenButton);
+          });
+
+          modalClose?.addEventListener("click", closeModal);
+
+          modalPrev?.addEventListener("click", () => {
+            applyActiveState(activeIndex - 1);
+          });
+
+          modalNext?.addEventListener("click", () => {
+            applyActiveState(activeIndex + 1);
+          });
+
+          modal.addEventListener("click", (event) => {
+            if (event.target === modal) {
+              closeModal();
+            }
+          });
+
+          document.addEventListener("keydown", (event) => {
+            if (modal.hidden) {
+              return;
+            }
+
+            if (event.key === "Escape") {
+              closeModal();
+              return;
+            }
+
+            if (event.key === "ArrowLeft") {
+              applyActiveState(activeIndex - 1);
+            }
+
+            if (event.key === "ArrowRight") {
+              applyActiveState(activeIndex + 1);
+            }
+          });
+
+          applyActiveState(activeIndex);
+        });
       })();
     </script>`;
 }
