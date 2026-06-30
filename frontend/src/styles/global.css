@@ -1179,7 +1179,9 @@ body.is-gallery-modal-open {
 }
 
 .footer-brand h2 {
-  font-size: clamp(3rem, 5vw, 4.8rem);
+  font-size: clamp(2rem, 7vw, 4rem);
+  line-height: 0.9;
+  white-space: nowrap;
 }
 
 .footer-block {
