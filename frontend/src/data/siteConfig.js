@@ -23,7 +23,7 @@ export const siteConfig = {
     "Vođeni, personalni i grupni treninzi na Novom Beogradu. CrossFit, Yoga, Pilates, Box i više. Jurija Gagarina 78.",
   siteUrl: "TODO_ADD_PRODUCTION_DOMAIN",
   tiktokUrl: "https://www.tiktok.com/@beostargym",
-  instagramUrl: "TODO_ADD_VERIFIED_INSTAGRAM_URL",
+  instagramUrl: "https://www.instagram.com/beostar_gym",
   googleMapsUrl: "TODO_ADD_VERIFIED_GOOGLE_MAPS_URL",
   googleMapsSearchUrl:
     "https://www.google.com/maps/search/?api=1&query=Beostar%20Gym%20Jurija%20Gagarina%2078",

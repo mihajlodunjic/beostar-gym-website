@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
-  hasOutstandingLaunchTodos,
+  getOutstandingLaunchTodos,
   renderPage,
   renderRobotsTxt,
   renderSitemapXml
@@ -32,9 +32,11 @@ async function build() {
 
   console.log("Build complete: frontend/dist");
 
-  if (hasOutstandingLaunchTodos()) {
+  const outstandingLaunchTodos = getOutstandingLaunchTodos();
+
+  if (outstandingLaunchTodos.length > 0) {
     console.log(
-      "Launch TODOs remain in site config: production domain, Instagram URL, and verified map URL still need confirmation."
+      `Launch TODOs remain in site config: ${outstandingLaunchTodos.join(", ")}.`
     );
   }
 }

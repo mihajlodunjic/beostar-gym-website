@@ -354,14 +354,17 @@ function renderLocation() {
 
 function renderSocialContact() {
   const hasInstagram = isVerifiedUrl(siteConfig.instagramUrl);
+  const primaryContactUrl = hasInstagram
+    ? siteConfig.instagramUrl
+    : siteConfig.tiktokUrl;
 
   return `        <section class="section-frame social-section" id="kontakt" aria-labelledby="kontakt-title">
           <div class="social-copy">
             <p class="section-label">${sectionLabels.contact}</p>
             <h2 id="kontakt-title">PIŠI NAM ZA PRVI TRENING</h2>
-            <p>Prati raspored i obaveštenja, pogledaj objave i javi se pre dolaska. Aktivni javni kontakt trenutno je TikTok profil.</p>
+            <p>Prati raspored i obaveštenja, pogledaj objave i javi se pre dolaska preko Instagrama ili TikTok-a.</p>
             <div class="social-actions">
-              <a class="button button-primary" href="${escapeHtml(siteConfig.tiktokUrl)}" target="_blank" rel="noreferrer noopener">Piši nam za prvi trening</a>
+              <a class="button button-primary" href="${escapeHtml(primaryContactUrl)}" target="_blank" rel="noreferrer noopener">Piši nam za prvi trening</a>
               <a class="button button-secondary" href="${escapeHtml(siteConfig.tiktokUrl)}" target="_blank" rel="noreferrer noopener">Pogledaj objave</a>
             </div>
           </div>
@@ -372,14 +375,14 @@ function renderSocialContact() {
               <p>Prati raspored i obaveštenja preko zvaničnog TikTok profila.</p>
               <a href="${escapeHtml(siteConfig.tiktokUrl)}" target="_blank" rel="noreferrer noopener">Otvori TikTok</a>
             </article>
-            <article class="social-card social-card--todo">
-              <p class="social-card__label">INSTAGRAM / ČEKA POTVRDU</p>
-              <h3>${hasInstagram ? "Instagram" : "Dodati potvrđen Instagram URL"}</h3>
-              <p>${hasInstagram ? "Otvorite zvanični Instagram profil Beostar Gym-a." : "Konfiguracija ostaje spremna, ali link nije javno potvrđen."}</p>
-              ${hasInstagram
-                ? `<a href="${escapeHtml(siteConfig.instagramUrl)}" target="_blank" rel="noreferrer noopener">Otvori Instagram</a>`
-                : `<span class="todo-chip">${escapeHtml(siteConfig.instagramUrl)}</span>`}
-            </article>
+            ${hasInstagram
+              ? `<article class="social-card social-card--todo">
+              <p class="social-card__label">INSTAGRAM / PORUKE I OBJAVE</p>
+              <h3>@beostar_gym</h3>
+              <p>Zapratite profil, proverite objave i pošaljite poruku pre prvog dolaska.</p>
+              <a href="${escapeHtml(siteConfig.instagramUrl)}" target="_blank" rel="noreferrer noopener">Otvori Instagram</a>
+            </article>`
+              : ""}
           </div>
         </section>`;
 }
@@ -428,7 +431,7 @@ function renderFooter() {
           <div class="footer-block">
             <h3>DRUŠTVENE MREŽE</h3>
             <a href="${escapeHtml(siteConfig.tiktokUrl)}" target="_blank" rel="noreferrer noopener">TikTok</a>
-            ${hasInstagram ? `<a href="${escapeHtml(siteConfig.instagramUrl)}" target="_blank" rel="noreferrer noopener">Instagram</a>` : `<span>${escapeHtml(siteConfig.instagramUrl)}</span>`}
+            ${hasInstagram ? `<a href="${escapeHtml(siteConfig.instagramUrl)}" target="_blank" rel="noreferrer noopener">Instagram</a>` : ""}
           </div>
         </div>
         <div class="footer-tape" aria-hidden="true">${renderStampLine()}</div>
@@ -472,10 +475,21 @@ export function renderSitemapXml() {
 `;
 }
 
-export function hasOutstandingLaunchTodos() {
+export function getOutstandingLaunchTodos() {
   return [
-    siteConfig.siteUrl,
-    siteConfig.instagramUrl,
-    siteConfig.googleMapsUrl
-  ].some(isPlaceholder);
+    {
+      label: "production domain",
+      value: siteConfig.siteUrl
+    },
+    {
+      label: "verified Instagram URL",
+      value: siteConfig.instagramUrl
+    },
+    {
+      label: "verified map URL",
+      value: siteConfig.googleMapsUrl
+    }
+  ]
+    .filter((item) => isPlaceholder(item.value))
+    .map((item) => item.label);
 }
