@@ -451,7 +451,7 @@ function renderFooter() {
 }
 
 function renderStampLine() {
-  return `${siteConfig.motto} ★ ${siteConfig.motto} ★ ${siteConfig.name} ★ ${siteConfig.address}`;
+  return `${siteConfig.motto} ★ ${siteConfig.name} ★ ${siteConfig.address}`;
 }
 
 function renderMiniBoardScript() {

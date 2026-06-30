@@ -919,6 +919,15 @@ span {
     scroll-behavior: auto;
   }
 
+  .top-stamp {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.64rem;
+    letter-spacing: 0.16em;
+    line-height: 1.35;
+    white-space: normal;
+    text-align: center;
+  }
+
   .site-header,
   .section-frame,
   .site-footer {
