@@ -7,6 +7,7 @@ import { whyBeostarBlocks } from "../data/whyBeostar.js";
 const sectionLabels = {
   trainings: "GRUPNI I PERSONALNI RAD",
   schedule: "RASPORED",
+  gallery: "GALERIJA",
   why: "ZAŠTO BEOSTAR",
   location: "LOKACIJA",
   contact: "KONTAKT",
@@ -94,6 +95,7 @@ function renderBody() {
         ${renderTrainingTypes()}
         ${renderSchedule()}
         ${renderWhyBeostar()}
+        ${renderGallery()}
         ${renderLocation()}
         ${renderSocialContact()}
         ${renderFaq()}
@@ -117,6 +119,7 @@ function renderHeader() {
           <nav class="desktop-nav" aria-label="Glavna navigacija">
             <a href="#raspored">Raspored</a>
             <a href="#treninzi">Treninzi</a>
+            <a href="#galerija">Galerija</a>
             <a href="#lokacija">Lokacija</a>
             <a href="#kontakt">Kontakt</a>
           </nav>
@@ -126,6 +129,7 @@ function renderHeader() {
             <nav aria-label="Mobilna navigacija">
               <a href="#raspored">Raspored</a>
               <a href="#treninzi">Treninzi</a>
+              <a href="#galerija">Galerija</a>
               <a href="#lokacija">Lokacija</a>
               <a href="#kontakt">Kontakt</a>
               <a href="#kontakt">Piši nam</a>
@@ -327,6 +331,34 @@ function renderWhyBeostar() {
               <img src="${siteConfig.images.approach.src}" alt="${escapeHtml(siteConfig.images.approach.alt)}" width="780" height="567" loading="lazy" decoding="async">
               <figcaption>Vođeni ritam, crna baza, narandžasti detalji.</figcaption>
             </figure>
+          </div>
+        </section>`;
+}
+
+function renderGallery() {
+  return `        <section class="section-frame gallery-section" id="galerija" aria-labelledby="galerija-title">
+          <div class="gallery-layout">
+            <div class="gallery-copy">
+              <p class="section-label">${sectionLabels.gallery}</p>
+              <h2 id="galerija-title">PROSTOR U KOM SE TRENIRA</h2>
+              <p>Pogledaj deo Beostar Gym prostora — oprema, sala i detalji koji nose isti crno-narandžasti ritam kao treninzi.</p>
+              <div class="brand-tape" aria-hidden="true">${renderStampLine()}</div>
+            </div>
+            <div class="gallery-board">
+              ${siteConfig.galleryImages
+                .map(
+                  (image, index) => `<figure class="gallery-card gallery-card--${index + 1}">
+                <p class="gallery-card__label">${escapeHtml(image.label)}</p>
+                <div class="gallery-card__media">
+                  <img src="${escapeHtml(image.src)}" alt="${escapeHtml(image.alt)}" loading="lazy" decoding="async">
+                </div>
+                <figcaption>
+                  <strong>${escapeHtml(image.title)}</strong>
+                </figcaption>
+              </figure>`
+                )
+                .join("")}
+            </div>
           </div>
         </section>`;
 }

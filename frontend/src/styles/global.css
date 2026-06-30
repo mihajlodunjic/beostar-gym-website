@@ -762,6 +762,132 @@ span {
   letter-spacing: 0.08em;
 }
 
+.gallery-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.gallery-copy {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.gallery-board {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(244, 95, 5, 0.32);
+  background:
+    linear-gradient(rgba(244, 95, 5, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(244, 95, 5, 0.14) 1px, transparent 1px),
+    rgba(9, 6, 4, 0.9);
+  background-size: 4rem 4rem, 4rem 4rem, auto;
+}
+
+.gallery-card {
+  position: relative;
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.9rem;
+  border: 1px solid rgba(244, 95, 5, 0.28);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 34%),
+    rgba(17, 17, 17, 0.92);
+}
+
+.gallery-card::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 3rem;
+  height: 3rem;
+  background: linear-gradient(135deg, transparent 50%, rgba(244, 95, 5, 0.92) 50%);
+  content: "";
+}
+
+.gallery-card--1,
+.gallery-card--4 {
+  grid-column: span 5;
+}
+
+.gallery-card--2,
+.gallery-card--3 {
+  grid-column: span 7;
+}
+
+.gallery-card--1 .gallery-card__media,
+.gallery-card--4 .gallery-card__media {
+  min-height: 15.5rem;
+}
+
+.gallery-card--2 .gallery-card__media,
+.gallery-card--3 .gallery-card__media {
+  min-height: 18rem;
+}
+
+.gallery-card__label {
+  margin: 0;
+  color: var(--orange);
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gallery-card__media {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(244, 95, 5, 0.36);
+}
+
+.gallery-card__media::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(9, 6, 4, 0.42));
+  content: "";
+}
+
+.gallery-card--1 .gallery-card__media {
+  clip-path: polygon(10% 0, 100% 0, 100% 86%, 90% 100%, 0 100%, 0 12%);
+}
+
+.gallery-card--2 .gallery-card__media {
+  clip-path: polygon(0 0, 100% 0, 100% 88%, 94% 100%, 0 100%, 0 8%);
+}
+
+.gallery-card--3 .gallery-card__media {
+  clip-path: polygon(7% 0, 100% 0, 100% 100%, 0 100%, 0 12%);
+}
+
+.gallery-card--4 .gallery-card__media {
+  clip-path: polygon(0 0, 100% 0, 100% 82%, 85% 100%, 0 100%);
+}
+
+.gallery-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gallery-card figcaption {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: 1.45rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.gallery-card figcaption::before {
+  color: var(--orange);
+  content: "//";
+}
+
 .location-layout {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
@@ -884,6 +1010,7 @@ span {
 
 @media (max-width: 1080px) {
   .hero-grid,
+  .gallery-layout,
   .location-layout,
   .social-section {
     grid-template-columns: 1fr;
@@ -906,6 +1033,13 @@ span {
   .why-card--3,
   .why-card--4,
   .why-image {
+    grid-column: span 6;
+  }
+
+  .gallery-card--1,
+  .gallery-card--2,
+  .gallery-card--3,
+  .gallery-card--4 {
     grid-column: span 6;
   }
 
@@ -989,6 +1123,7 @@ span {
 
   .trainings-grid,
   .why-layout,
+  .gallery-board,
   .social-board,
   .footer-grid {
     grid-template-columns: 1fr;
@@ -1000,8 +1135,16 @@ span {
   .why-card--2,
   .why-card--3,
   .why-card--4,
-  .why-image {
+  .why-image,
+  .gallery-card--1,
+  .gallery-card--2,
+  .gallery-card--3,
+  .gallery-card--4 {
     grid-column: auto;
+  }
+
+  .gallery-card__media {
+    min-height: 15rem;
   }
 
   .schedule-header {

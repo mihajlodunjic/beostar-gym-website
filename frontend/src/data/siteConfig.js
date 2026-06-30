@@ -30,6 +30,32 @@ export const siteConfig = {
   scheduleDisclaimer:
     "Raspored se može povremeno menjati. Za najnovije informacije pišite nam na društvenim mrežama.",
   trainingTags: ["CrossFit", "Yoga", "Pilates", "Box", "Burn", "ASSTRO"],
+  galleryImages: [
+    {
+      src: "/gym-interior-1.png",
+      alt: "Zona sa tegovima i klupom u Beostar Gym-u",
+      label: "01 / OPREMA",
+      title: "Zona za snagu"
+    },
+    {
+      src: "/gym-interior-2.png",
+      alt: "Glavni prostor za trening u Beostar Gym-u",
+      label: "02 / SALA",
+      title: "Prostor za funkcionalni rad"
+    },
+    {
+      src: "/gym-interior-3.png",
+      alt: "Prostor za funkcionalni trening u Beostar Gym-u",
+      label: "03 / RITAM",
+      title: "Ritam grupnog treninga"
+    },
+    {
+      src: "/gym-interior-4.png",
+      alt: "Ulazni deo i unutrašnjost Beostar Gym-a",
+      label: "04 / DETALJI",
+      title: "Beostar detalji"
+    }
+  ],
   images: {
     logo: {
       src: "/logo_orange_background_white_text.jpg",

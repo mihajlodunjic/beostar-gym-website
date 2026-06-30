@@ -39,6 +39,7 @@ async function run() {
   ]);
 
   assert(trainingTypes.length === 8, "Expected 8 training types.");
+  assert(siteConfig.galleryImages.length === 4, "Expected 4 gallery images.");
   assert(schedule.length === 7, "Expected schedule for 7 days.");
   assert(faqItems.length >= 4, "Expected at least 4 FAQ items.");
   assert(Boolean(siteConfig.title), "Missing site title.");
@@ -67,6 +68,8 @@ async function run() {
     "WE TRAIN AS ONE",
     "Jurija Gagarina 78",
     "TRENIRAMO KAO JEDAN",
+    "GALERIJA",
+    "PROSTOR U KOM SE TRENIRA",
     "RASPORED TRENINGA",
     "PIŠI NAM ZA PRVI TRENING",
     "https://www.tiktok.com/@beostargym"
